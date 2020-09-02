@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Student from "./pages/Student";
 import StudentForm from "./pages/StudentForm";
+import 'antd/dist/antd.css';
 
 function App() {
   const [auth, setAuth] = useState(false);

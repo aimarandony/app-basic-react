@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { useFormik } from "formik";
+import { Input, Button  } from "antd";
+import { UserOutlined, LockOutlined } from '@ant-design/icons'
 
 export default function Login({ auth, setAuth }) {
   const history = useHistory();
@@ -26,6 +28,7 @@ export default function Login({ auth, setAuth }) {
     },
     validate,
     onSubmit: (values) => {
+      console.log(values); 
       if (
         values.username.trim() === "admin" &&
         values.password.trim() === "admin"
@@ -56,43 +59,36 @@ export default function Login({ auth, setAuth }) {
           <form onSubmit={formik.handleSubmit}>
             <div className="form-group">
               <label>Usuario</label>
-              <input
+              <Input
                 type="text"
                 name="username"
-                onChange={formik.handleChange}
                 value={formik.values.username}
-                className={`form-control ${
-                  formik.errors.username && formik.touched.username
-                    ? "is-invalid"
-                    : ""
-                }`}
-                placeholder="Escribe su usuario"
+                onChange={formik.handleChange}
+                placeholder="Escriba su usuario"
+                prefix={<UserOutlined/>}
               />
               {formik.errors.username && formik.touched.username ? (
-                <div className="invalid-feedback">{formik.errors.username}</div>
+                <div className="error-valid">{formik.errors.username}</div>
               ) : null}
             </div>
             <div className="form-group">
-              <label>Password</label>
-              <input
+              <label>Contraseña</label>
+              <Input.Password
                 type="password"
                 name="password"
-                onChange={formik.handleChange}
                 value={formik.values.password}
-                className={`form-control ${
-                  formik.errors.password && formik.touched.password
-                    ? "is-invalid"
-                    : null
-                }`}
-                placeholder="Escriba su password"
+                onChange={formik.handleChange}
+                placeholder="Escriba su contraseña"
+                prefix={<LockOutlined/>}
               />
               {formik.errors.password && formik.touched.password ? (
-                <div className="invalid-feedback">{formik.errors.password}</div>
+                <div className="error-valid">{formik.errors.password}</div>
               ) : null}
             </div>
-            <button type="submit" className="btn btn-primary btn-block">
+            <Button type="primary" htmlType="submit" block>INGRESAR</Button>
+            {/* <button type="submit" className="btn btn-primary btn-block">
               INGRESAR
-            </button>
+            </button> */}
             {alertValidate ? (
               <div className="alert alert-warning mt-3 mb-0">
                 <span>Credenciales no validas.</span>

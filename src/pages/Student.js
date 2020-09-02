@@ -2,21 +2,106 @@ import React, { useState, useEffect } from "react";
 import { getStudents } from "../services/StudentService";
 import { useHistory } from "react-router-dom";
 
+import { Table, Button, Tooltip, Input } from "antd";
+import {
+  UserAddOutlined,
+  FilePdfTwoTone,
+  FileExcelTwoTone,
+  EditOutlined,
+  InfoCircleOutlined,
+} from "@ant-design/icons";
+
 export default function Student() {
   const history = useHistory();
   const [students, setStudents] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   const listar = () => {
     getStudents().then((resp) => {
+      resp.forEach((data) => {
+        data.sex = data.sex === "M" ? "Masculino" : "Femenino";
+        data.key = data.id;
+        data.nameCity = data.city.name;
+      });
+      console.log(resp);
       setStudents(resp);
-      setLoading(false);
     });
   };
 
   useEffect(() => {
     listar();
   }, []);
+
+  const cambiar = () => {
+    students.forEach((data) => {
+      data.sex = data.sex === "Masculino" ? "Macho" : "Hembra";
+    });
+    console.log(students);
+    listar();
+  };
+
+  const columns = [
+    {
+      title: "#",
+      dataIndex: "id",
+      key: "id",
+    },
+    {
+      title: "Nombre",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Apellido",
+      dataIndex: "lastName",
+      key: "lastName",
+    },
+    {
+      title: "Sexo",
+      dataIndex: "sex",
+      key: "sex",
+      filters: [
+        {
+          text: "Masculino",
+          value: "Masculino",
+        },
+        {
+          text: "Femenino",
+          value: "Femenino",
+        },
+      ],
+      filterMultiple: false,
+      onFilter: (value, record) => record.sex.indexOf(value) === 0,
+      sorter: (a, b) => a.sex.length - b.sex.length,
+      sortDirections: ["descend", "ascend"],
+    },
+    {
+      title: "Ciudad",
+      dataIndex: "nameCity",
+      key: "nameCity",
+    },
+    {
+      title: "Acciones",
+      key: "action",
+      render: (record) => (
+        <div>
+          <Tooltip title="Editar">
+            <Button
+              type="link"
+              size="small"
+              onClick={() => studentFormById(record.id)}
+            >
+              <EditOutlined />
+            </Button>
+          </Tooltip>
+          <Tooltip title="Información">
+            <Button type="link" size="small" onClick={cambiar}>
+              <InfoCircleOutlined />
+            </Button>
+          </Tooltip>
+        </div>
+      ),
+    },
+  ];
 
   const toStudentForm = () => {
     history.push("/student/form");
@@ -25,74 +110,65 @@ export default function Student() {
     history.push(`/student/form/${id}`);
   };
 
+  const [filterTable, setFilterTable] = useState(null);
+
+  const searchTable = (value) => {
+    console.log("PASS", { value });
+
+    setFilterTable(
+      students.filter((o) =>
+        Object.keys(o).some((k) =>
+          String(o[k]).toLowerCase().includes(value.toLowerCase())
+        )
+      )
+    );
+  };
+
   return (
     <div>
       <h3>
         ESTUDIANTE
-        <button className="btn btn-primary float-right" onClick={toStudentForm}>
-          + NUEVO
-        </button>
+        <Tooltip title="Nuevo Estudiante">
+          <Button
+            className="float-right d-flex"
+            onClick={toStudentForm}
+            shape="round"
+            icon={<UserAddOutlined />}
+          />
+        </Tooltip>
       </h3>
       <hr />
       <div className="container">
-        <div className="buttons-export mb-3">
-        <a className="btn btn-danger" href="https://basic-apirest-spring.herokuapp.com/api/students/pdf">
-          EXPORTAR A PDF
-        </a>
-        <a className="btn btn-success ml-3" href="https://basic-apirest-spring.herokuapp.com/api/students/excel">
-          EXPORTAR A EXCEL
-        </a>
+        <div className="buttons-export d-flex mb-3">
+          <a href="https://basic-apirest-spring.herokuapp.com/api/students/pdf">
+            <Tooltip title="Exportar a PDF">
+              <Button
+                className="d-flex justify-content-center align-items-center"
+                type="dashed"
+                icon={<FilePdfTwoTone twoToneColor="#ff0039" />}
+              />
+            </Tooltip>
+          </a>
+          <a href="https://basic-apirest-spring.herokuapp.com/api/students/excel">
+            <Tooltip title="Exportar a Excel">
+              <Button
+                className="d-flex justify-content-center align-items-center"
+                type="dashed"
+                icon={<FileExcelTwoTone twoToneColor="#3fb618" />}
+              />
+            </Tooltip>
+          </a>
         </div>
-        <div className="table-responsive">
-          <table className="table table-hover table-striped">
-            <thead className="thead-dark text-center">
-              <tr>
-                <th>#</th>
-                <th>Nombre</th>
-                <th>Apellido</th>
-                <th>Sexo</th>
-                <th>Ciudad</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="text-center">
-              {loading || students === null ? (
-                <tr>
-                  <td colSpan="6">
-                    <h2>Cargando....</h2>
-                  </td>
-                </tr>
-              ) : students.length > 0 ? (
-                students.map((data) => (
-                  <tr key={data.id}>
-                    <td>{data.id}</td>
-                    <td>{data.name}</td>
-                    <td>{data.lastName}</td>
-                    <td>{data.sex === "M" ? "Masculino" : "Femenino"}</td>
-                    <td>{data.city.name}</td>
-                    <td>
-                      <button
-                        className="btn btn-warning btn-sm"
-                        onClick={() => studentFormById(data.id)}
-                      >
-                        <i className="fas fa-pen"></i>
-                      </button>
-                      <button className="btn btn-info btn-sm">
-                        <i className="fas fa-info"></i>
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6">
-                    <h2>No hay estudiantes registrados</h2>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        <Input.Search
+          className="mb-2"
+          placeholder="Buscar por ..."
+          onSearch={searchTable}
+        />
+        <Table
+          dataSource={filterTable === null ? students : filterTable}
+          columns={columns}
+          pagination={{ pageSize: 5 }}
+        />
       </div>
     </div>
   );

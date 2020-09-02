@@ -54,3 +54,6 @@
     max-height: 100vh;
     padding: 20px;
 }
+.error-valid{
+    color: rgb(207, 29, 53);
+}

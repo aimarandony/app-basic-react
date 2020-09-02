@@ -8,6 +8,9 @@ import {
 } from "../services/StudentService";
 import { getCities } from "../services/CityService";
 
+import { Input, Radio, Select, Button, Tooltip } from "antd";
+import { ArrowLeftOutlined } from "@ant-design/icons";
+
 export default function StudentForm() {
   const history = useHistory();
   let { id } = useParams();
@@ -28,6 +31,10 @@ export default function StudentForm() {
       errors.lastName = "Apellido requerido.";
     }
 
+    if (!values.city.id) {
+      errors.city = "Ciudad requerida.";
+    }
+
     return errors;
   };
 
@@ -38,7 +45,7 @@ export default function StudentForm() {
       lastName: "",
       sex: "M",
       city: {
-        id: "1",
+        id: null,
       },
     },
     validate,
@@ -107,9 +114,14 @@ export default function StudentForm() {
     <div>
       <h3>
         ESTUDIANTE
-        <button className="btn btn-primary float-right" onClick={toStudent}>
-          CANCELAR
-        </button>
+        <Tooltip title="Regresar">
+          <Button
+            className="float-right d-flex"
+            onClick={toStudent}
+            shape="round"
+            icon={<ArrowLeftOutlined />}
+          />
+        </Tooltip>
       </h3>
       <hr />
       <div className="container">
@@ -118,12 +130,11 @@ export default function StudentForm() {
             <form onSubmit={formik.handleSubmit}>
               <div className="form-group">
                 <label>Nombre:</label>
-                <input
+                <Input
                   type="text"
                   name="name"
                   value={formik.values.name}
                   onChange={formik.handleChange}
-                  className="form-control"
                 />
                 {formik.errors.name && formik.touched.name ? (
                   <div className="error-field">{formik.errors.name}</div>
@@ -131,66 +142,73 @@ export default function StudentForm() {
               </div>
               <div className="form-group">
                 <label>Apellido:</label>
-                <input
+                <Input
                   type="text"
                   name="lastName"
                   value={formik.values.lastName}
                   onChange={formik.handleChange}
-                  className="form-control"
                 />
                 {formik.errors.lastName && formik.touched.lastName ? (
                   <div className="error-field">{formik.errors.lastName}</div>
                 ) : null}
               </div>
               <div className="form-group">
-                <div className="form-group">
-                  <div className="custom-control custom-radio">
-                    <input
-                      type="radio"
-                      id="M"
-                      name="sex"
-                      value="M"
-                      onChange={formik.handleChange}
-                      checked={formik.values.sex === "M" ? true : false}
-                      className="custom-control-input"
-                    />
-                    <label className="custom-control-label" htmlFor="M">
-                      Masculino
-                    </label>
-                  </div>
-                  <div className="custom-control custom-radio">
-                    <input
-                      type="radio"
-                      id="F"
-                      name="sex"
-                      value="F"
-                      onChange={formik.handleChange}
-                      checked={formik.values.sex === "F" ? true : false}
-                      className="custom-control-input"
-                    />
-                    <label className="custom-control-label" htmlFor="F">
-                      Femenino
-                    </label>
-                  </div>
-                </div>
+                <label>Género:</label>
+                <Radio.Group
+                  name="sex"
+                  value={formik.values.sex}
+                  onChange={formik.handleChange}
+                  className="w-100"
+                >
+                  <Radio.Button value="M">Masculino</Radio.Button>
+                  <Radio.Button value="F">Femenino</Radio.Button>
+                </Radio.Group>
               </div>
               <div className="form-group">
-                <select
+                <label>Ciudad:</label>
+
+                <Select
+                  showSearch
+                  name="city.id"
+                  placeholder="Selecciona una ciudad"
+                  optionFilterProp="children"
+                  style={{ width: "100%" }}
+                  value={formik.values.city.id}
+                  onChange={(text) => formik.setFieldValue("city.id", text)}
+                  filterOption={(input, option) =>
+                    option.props.children
+                      .toLowerCase()
+                      .indexOf(input.toLowerCase()) >= 0
+                  }
+                >
+                  {cities.map((data) => (
+                    <Select.Option key={data.id} value={data.id}>
+                      {data.name}
+                    </Select.Option>
+                  ))}
+                  {/* <Option value="1">Hola</Option>
+                  <Option value="2">Mundo</Option>
+                  <Option value="3">Mundo3</Option> */}
+                </Select>
+                {formik.errors.city && formik.touched.city ? (
+                  <div className="error-field">{formik.errors.city}</div>
+                ) : null}
+                {/* <select
                   className="custom-select"
                   name="city.id"
                   value={formik.values.city.id}
                   onChange={formik.handleChange}
-                >
+                  >
                   {cities.map((data) => (
-                    <option key={data.id} value={data.id}>
+                    <option key={data.name} value={data.id}>
                       {data.name}
                     </option>
                   ))}
-                </select>
+                </select> */}
               </div>
-              <button type="submit" className="btn btn-success btn-block">
+              <Button type="primary" htmlType="submit" block>
                 GUARDAR
-              </button>
+              </Button>
             </form>
             {alertSuccess ? (
               <div className="alert alert-success mt-3 mb-0">
@@ -203,6 +221,9 @@ export default function StudentForm() {
                 <span>Ocurrío un error al guardar.</span>
               </div>
             ) : null}
+
+            <br />
+            <div>{JSON.stringify(formik.values)}</div>
           </div>
         </div>
       </div>
