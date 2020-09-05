@@ -10,6 +10,7 @@ import { getCities } from "../services/CityService";
 
 import { Input, Radio, Select, Button, Tooltip } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
+import * as Yup from "yup";
 
 export default function StudentForm() {
   const history = useHistory();
@@ -19,24 +20,13 @@ export default function StudentForm() {
   const [alertSuccess, setAlertSuccess] = useState(false);
   const [alertError, setAlertError] = useState(false);
 
-  const validate = (values) => {
-    const errors = {};
-    if (!values.name) {
-      errors.name = "Nombre requerido.";
-    } else if (values.name.length <= 2) {
-      errors.name = "El nombre debe ser mayor a 2 dígitos.";
-    }
-
-    if (!values.lastName) {
-      errors.lastName = "Apellido requerido.";
-    }
-
-    if (!values.city.id) {
-      errors.city = "Ciudad requerida.";
-    }
-
-    return errors;
-  };
+  const validationSchema = Yup.object().shape({
+    name: Yup.string().trim().required("Nombre requerido"),
+    lastName: Yup.string().trim().required("Apellido requerido"),
+    city: Yup.object().shape({
+      id: Yup.number().nullable().required("Ciudad requerida"),
+    }),
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -48,8 +38,9 @@ export default function StudentForm() {
         id: null,
       },
     },
-    validate,
+    validationSchema,
     onSubmit: (values) => {
+      console.log(values);
       if (values.id === "") {
         console.log("insert", values);
         createStudent(values)
@@ -91,6 +82,7 @@ export default function StudentForm() {
   };
 
   useEffect(() => {
+    console.log("use effect here");
     getCities().then((resp) => setCities(resp));
 
     if (id) {
@@ -186,25 +178,10 @@ export default function StudentForm() {
                       {data.name}
                     </Select.Option>
                   ))}
-                  {/* <Option value="1">Hola</Option>
-                  <Option value="2">Mundo</Option>
-                  <Option value="3">Mundo3</Option> */}
                 </Select>
                 {formik.errors.city && formik.touched.city ? (
-                  <div className="error-field">{formik.errors.city}</div>
+                  <div className="error-field">{formik.errors.city.id}</div>
                 ) : null}
-                {/* <select
-                  className="custom-select"
-                  name="city.id"
-                  value={formik.values.city.id}
-                  onChange={formik.handleChange}
-                  >
-                  {cities.map((data) => (
-                    <option key={data.name} value={data.id}>
-                      {data.name}
-                    </option>
-                  ))}
-                </select> */}
               </div>
               <Button type="primary" htmlType="submit" block>
                 GUARDAR

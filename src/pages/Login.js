@@ -45,7 +45,7 @@ export default function Login({ auth, setAuth }) {
 
   useEffect(() => {
     if (localStorage.getItem("user") !== null) {
-      history.push("/student");
+      history.push("/student/form");
     }
   });
 

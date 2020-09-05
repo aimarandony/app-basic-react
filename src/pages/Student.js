@@ -31,14 +31,6 @@ export default function Student() {
     listar();
   }, []);
 
-  const cambiar = () => {
-    students.forEach((data) => {
-      data.sex = data.sex === "Masculino" ? "Macho" : "Hembra";
-    });
-    console.log(students);
-    listar();
-  };
-
   const columns = [
     {
       title: "#",
@@ -70,7 +62,9 @@ export default function Student() {
         },
       ],
       filterMultiple: false,
-      onFilter: (value, record) => record.sex.indexOf(value) === 0,
+      onFilter: (value, record) => {
+        return record.sex.indexOf(value) === 0;
+      },
       sorter: (a, b) => a.sex.length - b.sex.length,
       sortDirections: ["descend", "ascend"],
     },
@@ -94,7 +88,11 @@ export default function Student() {
             </Button>
           </Tooltip>
           <Tooltip title="Información">
-            <Button type="link" size="small" onClick={cambiar}>
+            <Button
+              type="link"
+              size="small"
+              onClick={() => console.log(filterTable)}
+            >
               <InfoCircleOutlined />
             </Button>
           </Tooltip>
@@ -167,7 +165,7 @@ export default function Student() {
         <Table
           dataSource={filterTable === null ? students : filterTable}
           columns={columns}
-          pagination={{ pageSize: 5 }}
+          pagination={{ pageSize: 4 }}
         />
       </div>
     </div>
